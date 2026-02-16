@@ -23,19 +23,17 @@ class CounterWidget extends StatefulWidget {
 class _CounterWidgetState extends State<CounterWidget> {
   int _counter = 0;
 
+  final TextEditingController _controller = TextEditingController();
+
   void _increment() {
     setState(() {
-      if (_counter < 100) {
-        _counter++;
-      }
+      if (_counter < 100) _counter++;
     });
   }
 
   void _decrement() {
     setState(() {
-      if (_counter > 0) {
-        _counter--;
-      }
+      if (_counter > 0) _counter--;
     });
   }
 
@@ -49,6 +47,42 @@ class _CounterWidgetState extends State<CounterWidget> {
     if (_counter == 0) return Colors.red;
     if (_counter > 50) return Colors.green;
     return Colors.black;
+  }
+
+  void _setValueFromInput() {
+    final text = _controller.text.trim();
+    final parsed = int.tryParse(text);
+
+    if (parsed == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a valid number.")),
+      );
+      return;
+    }
+
+    if (parsed > 100) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Limit Reached!")),
+      );
+      return;
+    }
+
+    if (parsed < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Value cannot be below 0.")),
+      );
+      return;
+    }
+
+    setState(() {
+      _counter = parsed;
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -103,6 +137,23 @@ class _CounterWidgetState extends State<CounterWidget> {
                 child: const Text("Reset"),
               ),
             ],
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: TextField(
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "Enter a number (0–100)",
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: _setValueFromInput,
+            child: const Text("Set Value"),
           ),
         ],
       ),
