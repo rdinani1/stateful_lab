@@ -31,10 +31,24 @@ class _CounterWidgetState extends State<CounterWidget> {
     });
   }
 
+  void _decrement() {
+    setState(() {
+      if (_counter > 0) {
+        _counter--;
+      }
+    });
+  }
+
   void _reset() {
     setState(() {
       _counter = 0;
     });
+  }
+
+  Color _counterColor() {
+    if (_counter == 0) return Colors.red;
+    if (_counter > 50) return Colors.green;
+    return Colors.black;
   }
 
   @override
@@ -52,8 +66,9 @@ class _CounterWidgetState extends State<CounterWidget> {
               padding: const EdgeInsets.all(20),
               child: Text(
                 '$_counter',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 50.0,
+                  color: _counterColor(),
                 ),
               ),
             ),
@@ -73,6 +88,11 @@ class _CounterWidgetState extends State<CounterWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              ElevatedButton(
+                onPressed: _decrement,
+                child: const Text("-"),
+              ),
+              const SizedBox(width: 12),
               ElevatedButton(
                 onPressed: _increment,
                 child: const Text("+"),
