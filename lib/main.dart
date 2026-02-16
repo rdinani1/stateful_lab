@@ -24,22 +24,41 @@ class _CounterWidgetState extends State<CounterWidget> {
   int _counter = 0;
 
   final TextEditingController _controller = TextEditingController();
+  final List<int> _history = [];
+
+  void _saveHistory() {
+    _history.add(_counter);
+  }
 
   void _increment() {
     setState(() {
-      if (_counter < 100) _counter++;
+      if (_counter < 100) {
+        _saveHistory();
+        _counter++;
+      }
     });
   }
 
   void _decrement() {
     setState(() {
-      if (_counter > 0) _counter--;
+      if (_counter > 0) {
+        _saveHistory();
+        _counter--;
+      }
     });
   }
 
   void _reset() {
     setState(() {
+      _saveHistory();
       _counter = 0;
+    });
+  }
+
+  void _undo() {
+    if (_history.isEmpty) return;
+    setState(() {
+      _counter = _history.removeLast();
     });
   }
 
@@ -75,6 +94,7 @@ class _CounterWidgetState extends State<CounterWidget> {
     }
 
     setState(() {
+      _saveHistory();
       _counter = parsed;
     });
   }
@@ -87,6 +107,8 @@ class _CounterWidgetState extends State<CounterWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final bool canUndo = _history.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interactive Counter'),
@@ -114,6 +136,7 @@ class _CounterWidgetState extends State<CounterWidget> {
             value: _counter.toDouble(),
             onChanged: (double value) {
               setState(() {
+                _saveHistory();
                 _counter = value.toInt();
               });
             },
@@ -135,6 +158,11 @@ class _CounterWidgetState extends State<CounterWidget> {
               ElevatedButton(
                 onPressed: _reset,
                 child: const Text("Reset"),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: canUndo ? _undo : null,
+                child: const Text("Undo"),
               ),
             ],
           ),
